@@ -29,8 +29,8 @@ stages:
              serviceConnectionEndpoint: 'snyk'
              testType: 'code'
              failOnIssues: true
-             projectName: 'code-scan'
-             organization: 'sumit8340'
+             projectName: 'code-ckeck'
+             organization: 'd7fb40a7-494f-44ef-891a-53a0fcd8e2d9'
   # Build stage to build and push the Docker image
   - stage: Build
     displayName: Build stage
