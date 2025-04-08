@@ -95,5 +95,5 @@ stages:
           - task: PublishCodeCoverageResults@1
             inputs:
               codeCoverageTool: 'JaCoCo'  # Choose between 'Cobertura' or 'JaCoCo'
-              summaryFileLocation: '$(Build.SourcesDirectory)/build/reports/jacoco/test/jacocoTestReport.xml'  # Path to the JaCoCo report
+              summaryFileLocation: '$(Build.SourcesDirectory)/jacocoTestReport.xml'  # Path to the JaCoCo report
               failIfCoverageEmpty: true  # Fail the build if no coverage data is found
