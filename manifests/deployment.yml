@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: sumitazuredevopsaksacr 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sumitazuredevopsaksacr
+  template:
+    metadata:
+      labels:
+        app: sumitazuredevopsaksacr 
+    spec:
+      containers:
+        - name: sumitazuredevopsaksacr 
+          image: container81.azurecr.io/sumitazuredevopsaksacr
+          ports:
+          - containerPort: 80
