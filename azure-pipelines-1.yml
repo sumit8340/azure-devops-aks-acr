@@ -1,0 +1,84 @@
+trigger:
+  - main
+
+resources:
+  - repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '3534a3ff-2048-4e76-9112-674faeb83387'
+  imageRepository: 'sumitazuredevopsaksacr'
+  containerRegistry: 'container81.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  tag: '$(Build.BuildId)'  # Use Build ID as tag
+  vmImageName: 'ubuntu-latest'  # VM image for build agent
+
+stages:
+  # Security Scan stage to scan the code first before build
+  - stage: SecurityScan
+    displayName: Security Scan stage
+    jobs:
+      - job: SecurityScan
+        displayName: Run Security Scan
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          # Task to run Snyk security scan for vulnerabilities before building the image
+         - task: SnykSecurityScan@1
+           inputs:
+             serviceConnectionEndpoint: 'snyk'
+             testType: 'code'
+             failOnIssues: true
+             projectName: 'code-ckeck'
+             organization: 'd7fb40a7-494f-44ef-891a-53a0fcd8e2d9'
+  # Build stage to build and push the Docker image
+  - stage: Build
+    displayName: Build stage
+    dependsOn: SecurityScan  # Make sure this stage only runs if SecurityScan passes
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          # Docker task to build and push the Docker image to ACR
+          - task: Docker@2
+            displayName: Build and push an image to container registry
+            inputs:
+              command: buildAndPush
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: |
+                $(tag)
+
+          # Upload manifests as artifacts for the next stage
+          - upload: manifests
+            artifact: manifests
+
+  # Deploy stage to deploy the image to AKS
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: Build  # Ensure Deploy runs after Build
+    jobs:
+      - deployment: Deploy
+        displayName: Deploy
+        pool:
+          vmImage: $(vmImageName)
+        environment: 'sumit8340azuredevopsaksacr.default'  # Specify the AKS environment
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Task to deploy Kubernetes manifests to the AKS cluster
+                - task: KubernetesManifest@0
+                  displayName: Deploy to Kubernetes cluster
+                  inputs:
+                    action: deploy
+                    manifests: |
+                      $(Pipeline.Workspace)/manifests/deployment.yml
+                      $(Pipeline.Workspace)/manifests/service.yml
+                    containers: |
+                      $(containerRegistry)/$(imageRepository):$(tag)
+                      
+
