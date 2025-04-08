@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
       - name: test-app
-        image: <your-acr-name>.azurecr.io/test-app-self-ado
+        image: container81.azurecr.io/test-app-self-ado
