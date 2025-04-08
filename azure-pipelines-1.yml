@@ -30,7 +30,7 @@ stages:
              testType: 'code'
              failOnIssues: true
              projectName: 'code-scan'
-             organization: 'Enhance Security in CICD for AKS Multi-Container Environment'
+             organization: 'sumit8340'
   # Build stage to build and push the Docker image
   - stage: Build
     displayName: Build stage
