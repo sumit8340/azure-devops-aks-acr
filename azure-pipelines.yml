@@ -11,7 +11,6 @@ variables:
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   vmImageName: 'ubuntu-latest'
-  SNYK_API_KEY: $(SNYK_API_KEY)  # Make sure this is set in the pipeline secrets.
 
 stages:
   - stage: Build
@@ -43,13 +42,20 @@ stages:
         pool:
           vmImage: $(vmImageName)
         steps:
+          # Install Snyk CLI
+          - script: |
+              echo "Installing Snyk CLI..."
+              npm install -g snyk
+            displayName: Install Snyk CLI
+
+          # Run Snyk scan
           - script: |
               echo "Running Snyk Vulnerability Scan"
-              snyk auth $(SNYK_API_KEY) # Auth with Snyk
+              snyk auth $(SNYK_API_KEY) # Auth with Snyk using the secret stored in Pipeline
               snyk container test $(containerRegistry)/$(imageRepository):$(tag) --all-projects
             displayName: 'Snyk Container Scan'
             env:
-              SNYK_API_KEY: $(SNYK_API_KEY)  # Ensure this is set in the pipeline secrets
+              SNYK_API_KEY: $(SNYK_API_KEY)  # Referencing the secret directly
 
   - stage: Deploy
     displayName: Deploy stage
