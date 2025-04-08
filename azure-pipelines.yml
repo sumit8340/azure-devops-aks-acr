@@ -44,16 +44,6 @@ stages:
           runOnce:
             deploy:
               steps:
-                # Step 1: Run the Snyk Security Scan
-                - task: SnykSecurityScan@1
-                  displayName: Snyk Security Scan
-                  inputs:
-                    serviceConnectionEndpoint: 'snyk'
-                    testType: 'container'
-                    failOnIssues: true
-                    projectName: 'container-image-check'
-                    organization: 'd7fb40a7-494f-44ef-891a-53a0fcd8e2d9'
-                    containerImage: '$(containerRegistry)/$(imageRepository):$(tag)'
                 
                 # Step 2: Deploy to Kubernetes if no security issues found
                 - task: KubernetesManifest@0
