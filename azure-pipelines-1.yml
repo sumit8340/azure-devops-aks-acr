@@ -31,7 +31,6 @@ stages:
              failOnIssues: true
              projectName: 'code-ckeck'
              organization: 'd7fb40a7-494f-44ef-891a-53a0fcd8e2d9'
-
   # Build stage to build and push the Docker image
   - stage: Build
     displayName: Build stage
@@ -54,12 +53,8 @@ stages:
                 $(tag)
 
           # Upload manifests as artifacts for the next stage
-          - task: PublishBuildArtifacts@1
-            displayName: Publish artifacts for deploy stage
-            inputs:
-              pathToPublish: '$(Build.ArtifactStagingDirectory)/manifests'
-              artifactName: 'manifests'
-              publishLocation: 'Container'
+          - upload: manifests
+            artifact: manifests
 
   # Deploy stage to deploy the image to AKS
   - stage: Deploy
@@ -85,6 +80,8 @@ stages:
                       $(Pipeline.Workspace)/manifests/service.yml
                     containers: |
                       $(containerRegistry)/$(imageRepository):$(tag)
+                      
+
 
   # Publish code coverage results (if applicable)
   - stage: CodeCoverage
